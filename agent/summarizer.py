@@ -58,7 +58,6 @@ def combine_summaries(chunk_summaries: list[str]) -> str:
 # ---------- spoken briefing ----------
 
 SPOKEN_ORDER = ["needs_reply", "important", "delivery", "other"]
-user_name = USER_NAME
 SPOKEN_PROMPT = """You are Elvis's personal assistant, telling him about his new email \
 out loud. It is {time_of_day}. Write what you will SAY to him.
 
@@ -110,5 +109,6 @@ def write_spoken_briefing(emails: list[dict], drafted: int, counts: dict) -> str
     prompt = SPOKEN_PROMPT.format(
         time_of_day=_time_of_day(), grouped="\n\n".join(groups),
         draft_note=draft_note, archived_note=archived_note,
+        user_name = USER_NAME
     )
     return generate(prompt).strip()

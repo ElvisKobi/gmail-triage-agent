@@ -87,7 +87,7 @@ def handle_important(service):
 
 def main():
     service = get_gmail_service()
-    say(f"Hi {USER_NAME} . Tap any key and talk to me.")
+    say(f"Hi {USER_NAME}. Tap any key and talk to me.")
 
     while True:
         print("\nTap any key to talk (q to quit)...")
@@ -113,7 +113,7 @@ def main():
         else:
             say("I can brief you, tell you what needs a reply, or what's important today.")
 
-    say("Goodbye, Boss")
+    say("Goodbye, {USER_NAME}.")
 
 
 if __name__ == "__main__":
