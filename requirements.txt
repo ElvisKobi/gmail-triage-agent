@@ -1,0 +1,13 @@
+# Gmail + Gemini
+google-genai
+httpx
+google-api-python-client
+google-auth-oauthlib
+python-dotenv
+
+# Voice (all offline)
+faster-whisper
+sounddevice
+numpy
+pyttsx3
+piper-tts

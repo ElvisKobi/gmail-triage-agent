@@ -1,0 +1,17 @@
+# --- Secrets: NEVER commit these ---
+.env
+credentials.json
+token.json
+
+# --- Personal data (everything the agent creates) ---
+data/
+logs/
+
+# --- Large downloaded files ---
+voices/
+
+# --- Python / editor ---
+.venv/
+__pycache__/
+*.pyc
+.vscode/
