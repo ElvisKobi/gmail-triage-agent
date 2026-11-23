@@ -113,7 +113,7 @@ def main():
         else:
             say("I can brief you, tell you what needs a reply, or what's important today.")
 
-    say("Goodbye, {USER_NAME}.")
+    say(f"Goodbye, {USER_NAME}.")
 
 
 if __name__ == "__main__":
