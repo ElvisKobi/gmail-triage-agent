@@ -31,6 +31,13 @@ voice running fully offline on my laptop.
   order and counts come from triage data; Gemini only turns them into natural speech.
 - **Privacy for voice.** Speech-to-text (Whisper) and text-to-speech (Piper) run
   locally; my voice never leaves the laptop.
+- **Model fallback for outages.** Gemini calls go through an ordered list of models.
+  If one is overloaded (HTTP 503) after retries, the agent switches to the next and
+  skips the failed model for the rest of the run. During a multi-hour outage that hit
+  every full Flash model, the agent kept working on Flash-Lite, and because state is
+  only saved after a successful run, no emails were lost while it was down.
+- **Only call the LLM when there's work.** Quiet days (nothing new, or only emails the
+  hard rules can decide) make zero API calls.
 
 ## How the files fit together
 
@@ -42,7 +49,7 @@ gmail_triage_agent/
 ├── agent/              the brain: triage.py, classifier.py, drafter.py, summarizer.py
 ├── services/           connections: gmail_client.py, gemini_utils.py, state.py
 ├── voice/              ears and mouth: listener.py, speaker.py
-├── tools/              one-off helpers: list_models.py
+├── tools/              one-off helpers: list_models.py, check_models.py
 ├── data/               files the agent creates (not committed)
 ├── logs/               run logs (not committed)
 └── voices/             downloaded Piper voice (not committed)
@@ -62,11 +69,13 @@ Flow of the voice assistant:
 | `agent/drafter.py` | **Ghostwriter.** Reads the full email, learns my style, saves a threaded draft. Never sends. |
 | `agent/summarizer.py` | **Briefing writer.** Spoken briefing (`data/briefing.txt`) and written digest (`data/digest.md`). |
 | `services/gmail_client.py` | **Gmail connection.** Login, fetching, labels, archiving. Makes no decisions. |
-| `services/gemini_utils.py` | **Gemini connection.** Sends prompts; handles pacing and retries. |
+| `services/gemini_utils.py` | **Gemini connection.** Sends prompts; handles pacing, retries, and the ordered model fallback list (`MODELS`). |
 | `services/state.py` | **Memory of time.** Saves/loads when the last successful run started. |
 | `assistant.py` | **Voice entry point.** Tap-to-talk loop: listen → understand → act → speak. |
 | `voice/listener.py` | **Ears.** Records the mic and transcribes locally with Whisper. |
 | `voice/speaker.py` | **Mouth.** Offline neural voice (Piper), with the Windows voice as fallback. |
+| `tools/list_models.py` | **Diagnostic (manual).** Lists which Gemini models the API key can see. |
+| `tools/check_models.py` | **Diagnostic (manual).** Sends a tiny test to each model and reports OK / 503 / 404 / 429, to decide the order of `MODELS` during an outage. |
 | `run_daily.bat` | **Launcher** for Windows Task Scheduler; writes output to `logs/agent.log`. |
 
 ## Setup
@@ -81,6 +90,9 @@ Flow of the voice assistant:
 6. Run once: `.venv\Scripts\python.exe summarize.py` (opens a browser to log in the first time).
 7. Talk to it: `.venv\Scripts\python.exe assistant.py` — tap any key, speak, tap again.
 8. Schedule `run_daily.bat` daily in Windows Task Scheduler.
+
+If runs start failing with 503 errors, run `.venv\Scripts\python.exe tools\check_models.py`
+and put the models marked OK first in `MODELS` in `services/gemini_utils.py`.
 
 ## Tech
 
